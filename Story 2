@@ -1,0 +1,33 @@
+Méta-donné de l’application : 
+
+FILE INFORMATION
+	File Name Application.apk
+	Size 23.2MB
+
+APP INFORMATION
+	App Name Nickel
+	Package Name com.fpe.comptenickel
+	Main Activity com.fpe.comptenickel.MainActivity
+	Target SDK 28 
+	Min SDK 19 
+	Max SDK
+	Android Version Name 2.12.0 
+	Android Version Code 150
+Liste de responsabilité : 
+-> App can be installed on a vulnerable unpatched Android version 4.4-4.4.4, [minSdk=19] :
+	-> Cette version d’Android présente divers faille et est bien en retard par rapport au versions actuelles (Android v16).
+
+	Une des plus connues sur Android 4.4 est la faille Fake ID qui permettait à une application malveillante de se faire passer pour une application système.
+	Permettait une attaque Man-in-the-Middle pour décrypter ou modifier le trafic HTTPS.
+
+-> L’application autorise le trafic réseau en clair via l’attribut android:usesCleartextTraffic=‘true’. 
+	-> Cette configuration permet à l’application d’utiliser des protocoles non chiffrés tels que HTTP, exposant les données transmises à des attaques de type Man-in-the-Middle, à l’interception et 	à la modification du trafic réseau.  
+
+-> L’application utilise l’algorithme AES en mode CBC avec padding PKCS7 pour le chiffrement de données sensibles. Ce mode ne fournit pas de vérification d’intégrité et est vulnérable aux 		attaques par oracle de padding.
+	-> Un attaquant peut exploiter les différences de comportement de l’application lors du déchiffrement pour récupérer des données chiffrées sans connaître la clé secrète.
+
+-> Classification Android :
+    * dangerous permission
+    * permet de lire tous les contacts du téléphone
+	-> Cette permission permet l’accès à des informations personnelles sensibles. Si ces données sont transmises à un serveur distant, cela peut entraîner une fuite de données et une violation de 	la vie privée de l’utilisateur.
+
