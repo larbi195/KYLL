@@ -1,0 +1,15 @@
+Commande
+Select-String -Path ".\app_src\res\values\strings.xml" -Pattern "key", "api", "secret", "http", "token"    
+ 		
+# Résultat                             
+ 		app_src\res\values\strings.xml:3:    <string name="ACCOUNT_ENDPOINT">https://api.nickel.eu/customer-banking-api</string>
+ 		app_src\res\values\strings.xml:4:    <string name="CUSTOMER_AUTHENTICATION_ENDPOINT">https://api.nickel.eu/customer-authentication-api</string>
+ 		app_src\res\values\strings.xml:7:    <string name="PERSONAL_SPACE_API_ENDPOINT">https://api.nickel.eu/personal-space-api</string>
+ 		app_src\res\values\strings.xml:15:    <string name="abc_capital_off">OFF</string>
+ 		app_src\res\values\strings.xml:16:    <string name="abc_capital_on">ON</string>
+ 		app_src\res\values\strings.xml:99:    <string name="firebase_database_url">https://application-client-nickel.firebaseio.com</string>
+ 		app_src\res\values\strings.xml:101:    <string name="google_api_key">AIzaSyBTgztvImsUfMWDa41PCrDWAj7dmyIDhUg</string>
+ 		app_src\res\values\strings.xml:103:    <string name="google_crash_reporting_api_key">AIzaSyBTgztvImsUfMWDa41PCrDWAj7dmyIDhUg</string>"Comment on peut le voir, ce fichier contient plusieurs informations confidentielles :
+    lien vers l'api du backend
+    lien vers la base de donnée
+    clé api de Google"
