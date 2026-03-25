@@ -1,0 +1,73 @@
+Analyse de code
+
+Clé api google exposé
+ligne 101
+
+
+Firebase Configuration Exposée
+Fichier: res/values/strings.xm
+       
+-Environnement de Production
+Fichier: res/values/strings.xml
+
+		Vulnérabilité:
+Les endpoints API de production sont clairement identifiables
+Un attaquant peut cibler directement l'API backend
+Absence d'URL de staging ou de développement (ce qui est bien)
+
+
+
+
+ INotificationSideChannelProxy Analysis
+Fichier analysé: smali/android/support/v4/app/INotificationSideChannel$Stub$Proxy.smali
+ligne 48-54
+
+Vulnérabilité:
+Utilisation de IPC (Inter-Process Communication) sans validation d'entrée
+Notifications peuvent être envoyées par des applications tierces
+Absence de vérification des permissions
+
+
+
+ Endpoints API en Clair avec Informations de Version
+Fichier: smali/com/fpe/comptenickel/BuildConfig.smali
+
+Vulnérabilité Critique:
+Exposition complète des endpoints API - Permet aux attaquants de cibler directement l'infrastructure backend
+Version exacte exposée (2.12.0) - Facilite la recherche de vulnérabilités spécifiques à cette version
+Code de version exposé (150 en décimal) - Permet l'énumération des versions
+
+
+Confirmation de l'Environnement Production
+Fichier: smali/com/fpe/comptenickel/BuildConfig.smali
+
+Vulnérabilité:
+L'application confirme être en production mais expose des secrets
+Paradoxe: DEBUG = false mais les outils React Native sont présents (vu dans strings.xml)
+Incohérence entre la configuration et l'implémentation
+
+
+identifiants de Services Tiers
+Fichier: smali/com/fpe/comptenickel/BuildConfig.smali
+Vulnérabilité:
+GCM Project Number - Permet d'identifier le projet Google Cloud
+Pushwoosh App ID - Identifiant de service de push notifications exposé
+Package name - Permet le repackaging et la création d'applications malveillantes similaires
+
+
+RNNotificationsPermissionsModule
+Fichier: smali/com/fpe/comptenickel/RNNotificationsPermissionsModule.smali
+
+Vulnérabilité:
+Aucune validation de l'appelant avant de retourner l'état des permissions
+N'importe quel module JavaScript peut appeler cette méthode
+Expose l'état des notifications à tout le code JS
+
+
+usesCleartextTraffic="true" - Trafic Non Chiffré
+Fichier: AndroidManifest.xml - Ligne 35
+
+Vulnérabilité Critique:
+Autorise le trafic HTTP non chiffré
+Permet des attaques Man-in-the-Middle (MITM)
+Exposition des données sensibles en clair sur le réseau
