@@ -1,0 +1,14 @@
+correction strings.xml
+commande effectuer pour ecompiller 
+# 1. Nettoyer et re-décompiler sans ressources
+cd ~/Téléchargements/
+rm -rf app_cyber
+apktool d app.apk -o app_cyber --no-res
+
+# 2. Recompiler
+apktool b app_cyber -o app_recompiled_cyber.apk
+
+# 3. Vérifier
+ls -lh app_recompiled_cyber.apk
+
+logs de la compilation
