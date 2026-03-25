@@ -1,0 +1,29 @@
+nous aloons tester l’acces a la base firebase a partir du lien recuperer dans l’apk
+
+COMMANDES EXÉCUTÉES:
+1. curl -s https://application-client-nickel.firebaseio.com/.json
+   → {"error": "Permission denied"}
+
+2. curl -s -I https://application-client-nickel.firebaseio.com/
+   → HTTP/1.1 405 Method Not Allowed
+
+3. curl -s https://application-client-nickel.firebaseio.com/users/.json
+   → {"error": "Permission denied"}
+
+4. curl -s https://application-client-nickel.firebaseio.com/accounts/.json
+   → {"error": "Permission denied"}
+
+CONCLUSION:
+La base de données Firebase est correctement sécurisée.
+Aucune donnée exposée publiquement mais par contre
+
+
+
+
+
+
+
+ce qui est exposé
+L'application expose l'URL Firebase dans son code :
+```xml
+<string name="firebase_database_url">https://application-client-nickel.firebaseio.com</string>
