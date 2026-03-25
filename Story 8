@@ -1,0 +1,18 @@
+Étape 1: Générer le keystore
+keytool -genkey -v -keystore debug.keystore -alias debug -keyalg RSA -keysize 2048 -validity 10000 -storepass android -keypass android -dname "CN=Test, OU=Test, O=Test, L=Test, ST=Test, C=FR"
+
+etape 2)
+Vérifier que l'APK recompilé existe
+cd ~/Téléchargements/
+ls -la app_recompiled_cyber.apk
+
+etape 3)
+Signer l'APK
+apksigner sign --ks debug.keystore --ks-pass pass:android --key-pass pass:android --out app_signed_cyber.apk app_recompiled_cyber.apk
+
+3. Vérifier la signature
+apksigner verify app_signed_cyber.apk
+
+ 4. Vérification détaillée
+apksigner verify --verbose app_signed_cyber.apk
+apksigner verify --print-certs app_signed_cyber.apk
