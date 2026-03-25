@@ -1,0 +1,182 @@
+Rapport Final – Analyse de Sécurité de l’Application
+Consultant : KYLL
+Date : 25/03/2026
+Objet : Analyse de sécurité et recommandations 
+
+Table des Matières
+Vérification de l’intégrité du fichier APK
+Analyse des métadonnées et sécurité de l’application
+Analyse des informations sensibles dans le code source (strings.xml)
+Décompilation
+Vérification de l’accessibilité des secrets exposés
+Analyse approfondie du code et de la configuration
+Compilation
+Vérification de la signature et recompilation de l’APK
+Test d’accès à la base Firebase
+Conclusions et recommandations générales
+
+1. Vérification de l’intégrité du fichier APK
+Finding 1 – Intégrité du fichier
+Preuve :
+Commande exécutée :
+sha256sum Application.apk
+Résultat :
+f01f08c8b6e2fe4612e81bc7e3a3ba9440dad0d7a962f4e67640390dd721d528  Application.apk
+Analyse :
+La somme de contrôle SHA-256 confirme que le fichier APK n’a pas été modifié depuis sa génération.
+Recommandation :
+Vérifier systématiquement l’intégrité des fichiers APK avant leur déploiement ou analyse.
+Automatiser la vérification SHA-256 dans le pipeline CI/CD.
+
+2. Analyse des métadonnées et sécurité de l’application
+Finding 2.1 – Compatibilité avec des versions Android vulnérables
+Preuve :
+Version Android cible : 2.12.0
+SDK minimum : 19 (Android 4.4-4.4.4)
+Analyse :
+L’application peut être installée sur des versions obsolètes et vulnérables, exposant les utilisateurs à des failles telles que Fake ID et des attaques Man-in-the-Middle.
+Recommandation :
+Élever le minSdkVersion pour exclure les versions vulnérables.
+Bloquer l’installation sur des systèmes non sécurisés.
+Finding 2.2 – Trafic réseau non chiffré
+Preuve :
+android:usesCleartextTraffic='true' activé
+Analyse :
+Permet l’usage de protocoles HTTP non sécurisés, exposant les données sensibles.
+Recommandation :
+Désactiver usesCleartextTraffic et forcer HTTPS.
+Mettre en place certificate pinning.
+Finding 2.3 – Chiffrement des données sensibles
+Preuve :
+AES-CBC avec padding PKCS7 utilisé
+Analyse :
+Mode CBC sans intégrité, vulnérable aux attaques par oracle de padding.
+Recommandation :
+Passer à AES-GCM pour confidentialité et intégrité.
+Finding 2.4 – Permissions sensibles
+Preuve :
+Permission dangereuse : lecture des contacts
+Analyse :
+Peut entraîner fuite de données personnelles si mal sécurisée.
+Recommandation :
+Réduire les permissions au strict nécessaire et chiffrer/anonymiser les données sensibles.
+
+3. Analyse des informations sensibles dans le code source (strings.xml)
+Finding 3 – Fuite d’informations sensibles
+Preuve :
+<string name="ACCOUNT_ENDPOINT">https://api.nickel.eu/customer-banking-api</string>
+<string name="CUSTOMER_AUTHENTICATION_ENDPOINT">https://api.nickel.eu/customer-authentication-api</string>
+<string name="PERSONAL_SPACE_API_ENDPOINT">https://api.nickel.eu/personal-space-api</string>
+<string name="firebase_database_url">https://application-client-nickel.firebaseio.com</string>
+<string name="google_api_key">AIzaSyBTgztvImsUfMWDa41PCrDWAj7dmyIDhUg</string>
+<string name="google_crash_reporting_api_key">AIzaSyBTgztvImsUfMWDa41PCrDWAj7dmyIDhUg</string>
+Analyse :
+Exposition d’URLs backend, base Firebase et clés API Google.
+Recommandation :
+Supprimer secrets du code source.
+Utiliser des fichiers chiffrés, variables d’environnement ou gestionnaire de secrets.
+Révoquer et régénérer toutes les clés exposées.
+
+4. Décompilation 
+
+5. Vérification de l’accessibilité des secrets exposés
+Finding 4 – Accessibilité des secrets
+Preuve :
+Type
+Valeur
+Résultat
+Route API
+https://api.nickel.eu/customer-banking-api
+404 Not Found
+Route API
+https://api.nickel.eu/customer-authentication-api
+404 Default Backend
+Route API
+https://api.nickel.eu/personal-space-api
+401 Unauthorized
+Base Firebase
+https://application-client-nickel.firebaseio.com
+Projet inexistant ou accès non autorisé
+Clé API Google
+AIzaSy…
+Exposée
+
+Analyse :
+Même si certaines ressources ne sont pas accessibles, les secrets restent en clair dans le code, exposant l’architecture et les clés.
+Recommandation :
+Restreindre et sécuriser les clés API.
+Supprimer les URLs et secrets des fichiers sources.
+Mettre en place un contrôle de code pour détecter les secrets.
+
+6. Analyse approfondie du code et de la configuration
+Finding 5.1 – Clés et configurations sensibles exposées
+Finding 5.2 – Vulnérabilités liées à INotificationSideChannelProxy
+Finding 5.3 – Endpoints API exposés et informations de version
+Finding 5.4 – Identifiants de services tiers exposés
+Finding 5.5 – RNNotificationsPermissionsModule non sécurisé
+Finding 5.6 – Trafic non chiffré
+Toutes ces vulnérabilités permettent à un attaquant :
+D’accéder aux services backend
+D’exploiter les clés et identifiants de services tiers
+D’utiliser des IPC ou modules JS non sécurisés
+D’intercepter des données sensibles via trafic HTTP
+Recommandations :
+Supprimer tous les secrets du code et sécuriser la configuration de production
+Ajouter des validations et contrôles d’accès pour IPC et modules JS
+Désactiver le trafic HTTP non chiffré, forcer HTTPS
+Masquer les versions, endpoints et identifiants de services tiers 
+
+7. Compilation
+
+8. Vérification de la signature et recompilation de l’APK
+Finding 6 – Recompilation et signature de l’APK
+Preuve :
+Génération du keystore :
+keytool -genkey -v -keystore debug.keystore -alias debug -keyalg RSA -keysize 2048 -validity 10000 -storepass android -keypass android -dname "CN=Test, OU=Test, O=Test, L=Test, ST=Test, C=FR"
+Vérification de l’APK recompilé :
+ls -la app_recompiled_cyber.apk
+Signature de l’APK :
+apksigner sign --ks debug.keystore --ks-pass pass:android --key-pass pass:android --out app_signed_cyber.apk app_recompiled_cyber.apk
+Vérification de la signature :
+apksigner verify --verbose --print-certs app_signed_cyber.apk
+Analyse :
+Garantit que l’APK n’a pas été altéré.
+Une signature correcte valide l’intégrité et la provenance.
+Recommandation :
+Ne jamais distribuer un APK non signé ou signé avec un keystore de test en production.
+Vérifier systématiquement la signature avant installation.
+
+9. Test d’accès à la base Firebase
+Finding 7 – Sécurité de la base Firebase
+Preuve :
+curl -s https://application-client-nickel.firebaseio.com/.json
+# → {"error": "Permission denied"}
+
+curl -s https://application-client-nickel.firebaseio.com/users/.json
+# → {"error": "Permission denied"}
+
+curl -s https://application-client-nickel.firebaseio.com/accounts/.json
+# → {"error": "Permission denied"}
+Analyse :
+La base Firebase n’est pas accessible publiquement.
+L’URL exposée reste un risque potentiel.
+Recommandation :
+Conserver les règles de sécurité actuelles.
+Ne jamais inclure l’URL de production dans le code source.
+Surveiller l’accès aux endpoints Firebase.
+
+10. Conclusions et recommandations générales
+L’application contient plusieurs informations sensibles exposées (clés API, endpoints, configuration Firebase).
+L’application peut être installée sur des versions Android vulnérables.
+Certaines fonctionnalités (IPC, RNNotificationsPermissionsModule) sont mal sécurisées.
+Le trafic réseau non chiffré représente un risque critique de MITM.
+La base Firebase est correctement sécurisée mais l’URL en clair constitue un risque d’ingénierie inversée.
+Recommandations globales :
+Sécuriser les secrets et configurations via gestionnaire de secrets ou variables d’environnement.
+Forcer HTTPS pour toutes les communications et désactiver usesCleartextTraffic.
+Élever le minSdkVersion pour exclure les versions vulnérables.
+Ajouter des validations pour IPC et modules JS.
+Masquer les informations sensibles (endpoints, version, identifiants tiers) dans le code de production.
+Vérifier et signer correctement les APKs avant distribution.
+Mettre en place un contrôle automatique pour détecter la présence de secrets dans le code.
+Surveiller l’accès aux bases de données et services pour détecter toute tentative d’accès non autorisée.
